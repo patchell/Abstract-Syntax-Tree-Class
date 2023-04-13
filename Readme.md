@@ -1,0 +1,5 @@
+April 12, 2023
+
+This is a program I used to test an Abstract Syntax Tree C++ class I created.  What this is based on is almost 2 decades old, but after looking at that code... Well, it was JUST too ugly.  There is still a little ugly in it, I hope to clear that up.  So this little "compiler" is just the old classic expresion parser that you can find just about anywhere.  This was supposed to be a simple demo, well, it is simple, but with a massive number of classes.  Really surprised me.
+
+This demo uses a Recirsove Descemt Parser, which means that the Grammar is LL(1).  For me, Recursive Descent comes in two flavors.  In flavor #1, there is a 1:1 correspondene between the parsing methods and the grammar.  In flavor #2, the parsing method combines two grammar productions, that are related to each other, into a single method and uses a while statgement rather than recursion.  I did this partly because it was easier to debug.  When you are stipping though the debuffer, I begin to loose track of where I am because we hop around alot.
