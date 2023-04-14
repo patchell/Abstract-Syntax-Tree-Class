@@ -24,6 +24,9 @@ public:
 	FILE* GetOutFile() { return m_pOutFile; }
 	CROOTnode* GetRootNode() { return &m_RootNode; }
 private:
+	//----------------------------------------
+	// These are the parse methods
+	//----------------------------------------
 	CAstNode* Grammar();
 	CAstNode* Expr();
 	CAstNode* Term();

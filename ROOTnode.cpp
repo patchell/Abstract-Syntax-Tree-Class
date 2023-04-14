@@ -30,7 +30,7 @@ void CROOTnode::PrintTree(FILE* pOut)
 	char* s = new char[256];
 
 	s[0] = 0;
-	fprintf(pOut, "  NODE HEAD NEXT CHILD TAIL\n");
+	fprintf(pOut, "  NODE NEXT CHILD TAIL\n");
 	PrintBranch(pOut, s);
 	delete[] s;
 }

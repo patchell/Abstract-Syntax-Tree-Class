@@ -38,10 +38,8 @@ public:
 	};
 private:
 	inline static int s_NodeNumber = 0;
-	CAstNode* m_pHead;
 	CAstNode* m_pTail;
 	CAstNode* m_pNext;
-	CAstNode* m_pPrev;
 	CAstNode* m_pChild;
 	int m_NodeNumber;
 	int m_nNumberOfNodes;
@@ -50,20 +48,16 @@ public:
 	CAstNode();
 	virtual ~CAstNode();
 	BOOL Create();
-	virtual CValue* Process(CValue* pValue) { return 0; };
+	virtual CValue* Process(CValue* pValue);
 	//--------------------------------
 	// Linked List
 	//--------------------------------
 	void SetNext(CAstNode* pN) { m_pNext = pN; }
 	CAstNode* GetNext() { return m_pNext; }
-	void SetPrev(CAstNode* pP) { m_pPrev = pP; }
-	CAstNode* GetPrev() { return m_pPrev; }
 	CAstNode* GetChild() { return m_pChild; }
 	void SetChild(CAstNode* pC){m_pChild = pC; }
 	void AddNode(CAstNode* pChild, CAstNode* pNext);
 	void AddNextNode(CAstNode* pNext);
-	void SetHead(CAstNode* pH) { m_pHead = pH; }
-	CAstNode* GetHead() { return m_pHead; }
 	void SetTail(CAstNode* pT) { m_pTail = pT; }
 	CAstNode* GetTail() { return m_pTail; }
 	//--------------------------------
@@ -73,7 +67,10 @@ public:
 		return m_NodeNumber; 
 	}
 	NodeType GetNodeType() { return m_NodeType; }
-    void PrintBranch(FILE* pOut, char* pIndentString);
+	//---------------------------------------
+	// Printing
+	//---------------------------------------
+    virtual void PrintBranch(FILE* pOut, char* pIndentString);
 	virtual void Print(FILE* pOut, const char* pIndentString);
 	const char* GetTypeName();
 protected:

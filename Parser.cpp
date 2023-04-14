@@ -46,6 +46,14 @@ CAstNode* CParser::Grammar()
 	CIDENTvalue* pIdentAstNode;
 	BOOL Loop = TRUE;
 
+	//--------------------------------------
+	// Keep looping until we run out of
+	// Tokens
+	// 
+	// Implemented as a while loop rather
+	// than recursive.  Makes life so much
+	// easier.
+	//--------------------------------------
 	while (Loop)
 	{
 		switch (m_LookaHead)
@@ -53,27 +61,56 @@ CAstNode* CParser::Grammar()
 		case CToken::Token::IDENT:
 			if (pN)
 			{
+				//----------------------------------
+				// There after
+				// 
+				//  create an assignment node and
+				// add it to the list of statements
+				//----------------------------------
 				pAssNode = new CASSign;
 				pAssNode->Create();
 				pN->AddNextNode(pAssNode);
 			}
 			else
 			{
+				//------------------------
+				// The first time though
+				// 
+				// Create an assignment
+				// node
+				//------------------------
 				pAssNode = new CASSign;
 				pAssNode->Create();
 				pFirstAss = pAssNode;
 			}
+			//--------------------------------------------
+			// Create the identifier node
+			//--------------------------------------------
 			pIdentAstNode = new CIDENTvalue;
 			pIdentAstNode->Create();
 			pIdentAstNode->SetSymbol(GetLexer()->GetLexSymbol());
+			//-------------------------------------
 			m_LookaHead = Expect(CToken::Token::IDENT);
 			m_LookaHead = Expect(CToken::Token('='));
+			//-------------------------------------
+			// parse the expresion and get the
+			// head node for that.
+			//-------------------------------------
 			pN1 = Expr();
+			//-------------------------------------
+			// Then add the identifier node to
+			// the assignmet node as  a child
+			// with the expresion node as next
+			//-------------------------------------
 			pAssNode->AddNode(pIdentAstNode, pN1);
-			pN = pAssNode;
+			pN = pAssNode;	//get ready to do it again.
 			m_LookaHead = Expect(CToken::Token(';'));
 			break;
 		default:
+			//--------------------------
+			// unrecognized token, time
+			// to quit
+			//--------------------------
 			Loop = FALSE;
 			break;
 		}
@@ -90,9 +127,6 @@ CAstNode* CParser::Expr()
 	//			-> - Term Expr1
 	//			-> .;
 	// 
-	// parameter:
-	// 
-	// pOperand_1.......Operand #1
 	// 
 	// returns a last child node
 	//----------------------------------------------

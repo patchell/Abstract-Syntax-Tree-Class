@@ -4,9 +4,7 @@ CAstNode::CAstNode()
 {
 	m_nNumberOfNodes = 0;
 	m_pNext = 0;
-	m_pPrev = 0;
 	m_pChild = 0;
-	m_pHead = 0;
 	m_pTail = 0;
 	m_NodeType = NodeType::BASE;
 	m_NodeNumber = ++s_NodeNumber;
@@ -22,11 +20,43 @@ BOOL CAstNode::Create()
 	return rV;
 }
 
+CValue* CAstNode::Process(CValue* pValue)
+{
+	//------------------------------------
+	// This is where all the work is done.
+	// It will probaly take this form in
+	// the method in the derived class:
+	// 
+	// CValue* pVal1,*pVal2;
+	// CAstNode* pAN;
+	// 
+	// if(GetChild())
+	//	pVal1 = GetChild()->Process(pValIn);
+	// pAN = GetNext();
+	// while(pAN)
+	// {
+	//	pVal2 = pAN->Process(pVal1);
+	//		.....
+	//		Do Something
+	//		....
+	//	pVal1 = pVal2;
+	//	pAN = pAN->GetNext();
+	// }
+	// return pVal1;
+	// 
+	// But, there may be ocasions where it
+	// might need to be different
+	//------------------------------------
+	return nullptr;
+}
+
 void CAstNode::AddNode(CAstNode* pChild, CAstNode* pNext)
 {
 	SetChild(pChild);
-	if (pChild)
-		pChild->AddNextNode(pNext);
+	if (GetChild())
+	{
+		GetChild()->AddNextNode(pNext);
+	}
 }
 
 void CAstNode::AddNextNode(CAstNode* pNext)
@@ -41,13 +71,12 @@ void CAstNode::AddNextNode(CAstNode* pNext)
 		if (GetTail())
 		{
 			GetTail()->SetNext(pNext);
-			pNext->SetPrev(GetTail());
 			SetTail(pNext);
 		}
 		else
 		{
 			SetTail(pNext);
-			SetHead(pNext);
+			SetNext(pNext);
 		}
 		++m_nNumberOfNodes;
 	}
@@ -71,8 +100,11 @@ const char* CAstNode::GetTypeName()
 
 void CAstNode::Print(FILE* pOut, const char *pIndentString)
 {
-	int Next, Child, Tail, Head;
+	char* s = new char[512];
+	int Next, Child, Tail;
+	int l;
 
+	l = sprintf_s(s, 512, "%s", pIndentString);
 	if (!pIndentString)
 		pIndentString = "";
 	if (GetNext())
@@ -83,87 +115,45 @@ void CAstNode::Print(FILE* pOut, const char *pIndentString)
 		Child = GetChild()->GetNodeNumber();
 	else
 		Child = -1;
-	if (!m_pTail)
-		Tail = -1;
-	else
-	{
+	if (GetTail())
 		Tail = GetTail()->GetNodeNumber();
-	}
-	if (!m_pHead)
-		Head = -1;
 	else
-		Head = GetHead()->GetNodeNumber();
+		Tail = -1;
 		
-	fprintf(pOut, "%5d%5d%5d%5d%5d   %s",
+	fprintf(pOut, "%5d%5d%5d%5d   %s+-%s-",
 		GetNodeNumber(),
-		Head,
 		Next,
 		Child,
 		Tail,
-		pIndentString
+		pIndentString,
+		GetTypeName()
 	);
-	//-------------------------------------
-	// Print out node type Name
-	//-------------------------------------
-	fprintf(pOut, "-%s-", GetTypeName());
+	delete[]s;
 }
 
 void CAstNode::PrintBranch(FILE* pOut, char *pIndentString)
 {
-	char* s = new char[256];
+	char* s = new char[512];	// copy of indent string
 	int l = 0;
+	CAstNode* pAN;
 
-	l = sprintf_s(s, 256, "%s", pIndentString);
-
-	do {
-		l += sprintf_s(&s[l], 256 - l, "+ -");
-		Print(pOut, s);
-		l -= 3;
-		s[l] = 0;
-		if (GetChild())
-		{
-			if(GetHead())
-				l += sprintf_s(&s[l], 256 - l, "|  ");
-			else if (GetNext())
-				l += sprintf_s(&s[l], 256 - l, "|  ");
-			else
-				l += sprintf_s(&s[l], 256 - l, "   ");
-			GetChild()->PrintBranch(pOut, s);
-			l -= 3;
-			s[l] = 0;
-		}
-		if (GetHead())
-			GetHead()->PrintBranch(pOut, s);
-	} while (GetNext());
-}
-
-/*
-void CAstNode::PrintBranch(FILE* pOut, int Indent)
-{
-	CAstNode* pASTN = 0;
-
-	static int Recursions = 0;
-	fprintf(stderr, "Recursion %d\n", ++Recursions);
-	if (Recursions > 30)
-	{
-		fprintf(stderr, "Infinate Loop %d\n", Recursions);
-		exit(1);
-	}
-
-	Print(pOut, Indent);
+	l = sprintf_s(s, 512, "%s", pIndentString);
+	Print(pOut, s);
 	if (GetChild())
 	{
-		GetChild()->PrintBranch(pOut, Indent + 1);
+		if (GetNext())
+			l += sprintf_s(&s[l], 512 - l, "%s", "|  ");
+		else
+			l += sprintf_s(&s[l], 512 - l, "%s", "   ");
+		GetChild()->PrintBranch(pOut, s);
+		l -= 3;
+		s[l] = 0;
 	}
-	if (GetHead())
+	pAN = GetNext();
+	while (pAN)
 	{
-		pASTN = GetHead();
-		while (pASTN)
-		{
-			pASTN->PrintBranch(pOut, Indent);
-			pASTN = pASTN->GetNext();
-		}
+		pAN->PrintBranch(pOut, s);
+		pAN = pAN->GetNext();
 	}
+	delete[] s;
 }
-
-*/
